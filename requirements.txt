@@ -6,3 +6,5 @@ Unipath
 python-decouple
 bleach
 whitenoise==3.2
+djangorestframework
+django-cors-headers
