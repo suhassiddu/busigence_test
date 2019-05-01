@@ -1,0 +1,8 @@
+Django
+dj-database-url
+dj-static
+gunicorn
+Unipath
+python-decouple
+bleach
+whitenoise==3.2
