@@ -1,0 +1,25 @@
+<form method="post" action="http://127.0.0.1:8000/csv2head/" enctype="multipart/form-data">
+ <div>
+   <label for="file">CSV READ HEADER</label>
+   <br/><input type="file" id="csv_files" name="csv_files" multiple>
+ </div>
+ <div>
+   <button>Submit</button>
+ </div>
+</form>
+
+<form method="post" action="http://127.0.0.1:8000/csvtransform/" enctype="multipart/form-data">
+ <div>
+   <label for="file">CSV TRANSFORM</label>
+   <br/>csv_files: <input type="file" id="csv_files" name="csv_files" multiple>
+   <br/>column_name_a: <input name="column_name_a">
+   <br/>column_name_b: <input name="column_name_b">
+   <br/>join_type: <input name="join_type">
+   <br/>sort_column: <input name="sort_column">
+   <br/>sort_type: <input type="checkbox" value="false" name="sort_type">
+   <br/>downloadable: <input type="checkbox" value="false" name="downloadable">
+ </div>
+ <div>
+   <button>Submit</button>
+ </div>
+</form>
