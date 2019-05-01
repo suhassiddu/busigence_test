@@ -23,9 +23,9 @@ from django.conf.urls.static import static
 router = routers.DefaultRouter()
 
 urlpatterns = [
+    url(r'^', include('app.urls')),
     path('', include(router.urls)),
     path('admin/', admin.site.urls),
-    url(r'^', include('app.urls')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
 
