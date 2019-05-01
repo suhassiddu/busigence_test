@@ -1,6 +1,6 @@
 <form method="post" action="http://127.0.0.1:8000/csv2head/" enctype="multipart/form-data">
  <div>
-   <label for="file">CSV READ HEADER</label>
+   <h2>CSV TO HEAD</h2>
    <br/><input type="file" id="csv_files" name="csv_files" multiple>
  </div>
  <div>
@@ -8,9 +8,11 @@
  </div>
 </form>
 
+<hr/>
+
 <form method="post" action="http://127.0.0.1:8000/csvtransform/" enctype="multipart/form-data">
  <div>
-   <label for="file">CSV TRANSFORM</label>
+   <h2>CSV TRANSFORM</h2>
    <br/>csv_files: <input type="file" id="csv_files" name="csv_files" multiple>
    <br/>column_name_a: <input name="column_name_a">
    <br/>column_name_b: <input name="column_name_b">
@@ -23,3 +25,43 @@
    <button>Submit</button>
  </div>
 </form>
+
+<hr/>
+
+<form method="post" action="http://127.0.0.1:8000/database2schema/" enctype="multipart/form-data">
+ <div>
+   <h2>DATABASE TO SCHEMA</h2>
+   <br/>mysql_host: <input name="mysql_host">
+   <br/>mysql_user: <input name="mysql_user">
+   <br/>mysql_passwd: <input type="password" name="mysql_passwd">
+ </div>
+ <div>
+   <button>Submit</button>
+ </div>
+</form>
+
+<hr/>
+
+<form method="post" action="http://127.0.0.1:8000/databasetransform/" enctype="multipart/form-data">
+ <div>
+   <h2>DATABASE TRANSFORM</h2>
+   <br/>mysql_host: <input name="mysql_host">
+   <br/>mysql_user: <input name="mysql_user">
+   <br/>mysql_passwd: <input type="password" name="mysql_passwd">
+   <br/>database_name_a: <input name="database_name_a">
+   <br/>database_name_b: <input name="database_name_b">
+   <br/>table_name_a: <input name="table_name_a">
+   <br/>table_name_b: <input name="table_name_b">
+   <br/>column_name_a: <input name="column_name_a">
+   <br/>column_name_b: <input name="column_name_b">
+   <br/>join_type: <input name="join_type">
+   <br/>sort_column: <input name="sort_column">
+   <br/>sort_type: <input type="checkbox" value="false" name="sort_type">
+   <br/>downloadable: <input type="checkbox" value="false" name="downloadable">
+ </div>
+ <div>
+   <button>Submit</button>
+ </div>
+</form>
+
+<hr/>
