@@ -4,4 +4,6 @@ hosted on https://suhasbusigence.herokuapp.com/
 
 # busigence_react
 
-frontend hosted on  https://suhasbusigence.herokuapp.com/static/index.html
+frontend git on https://github.com/suhassiddu/busigence_react/
+
+frontend hosted on https://suhassiddu.github.io/
