@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import sys
 import csv
 import pandas as pd
 import mysql.connector as mysql
@@ -42,65 +43,118 @@ class Database2Schema(APIView):
                 field_names = list(map(lambda e: e[0], field_names))
                 return field_names
 
-            schema = {}
+            schema = []
             for d in databases():
-                schema[d] = {}
                 for t in tables(d):
-                    schema[d][t] = fields(d, t)
+                    for f in fields(d, t):
+                       schema.append('{0}.{1}.{2}'.format(d, t, f)) 
             c.close()
             db.close()
             return Response(schema)
         except:
             return Response({'message': 'unknown'}, status=status.HTTP_400_BAD_REQUEST)
 
+class Database2Head(APIView):
+    def post(self, request, format=None):
+        try:
+            def sql2pd(host, user, passwd, database_name, table_name):
+                db = mysql.connect(
+                    host = host,
+                    user = user,
+                    passwd = passwd,
+                    database = database_name)
+                df = pd.read_sql('select * from {}'.format(table_name), con=db)
+                db.close()
+                return df
+     
+            mysql_host = request.POST.get('mysql_host', 'localhost')
+            mysql_user = request.POST.get('mysql_user', '')
+            mysql_passwd = request.POST.get('mysql_passwd', '')
+            left_column = request.POST.get('left_column', '')
+            right_column = request.POST.get('right_column', '')
+            join_type = request.POST.get('join_type', '')
+            left_column = left_column.strip().split('.')
+            right_column = right_column.strip().split('.')
+            database_name_a = left_column[0]
+            database_name_b = right_column[0]
+            table_name_a = left_column[1]
+            table_name_b = right_column[1]
+            column_name_a = left_column[2]
+            column_name_b = right_column[2]
+            df_a = sql2pd(
+                host = mysql_host,
+                user = mysql_user,
+                passwd = mysql_passwd,
+                database_name = database_name_a,
+                table_name = table_name_a)
+            df_b = sql2pd(
+                host = mysql_host,
+                user = mysql_user,
+                passwd = mysql_passwd,
+                database_name = database_name_b,
+                table_name = table_name_b)
+            df_r = transform_join(df_a, df_b, column_name_a, column_name_b, join_type)
+            return Response(list(df_r))
+        except:
+            return Response({'message': 'unknown'}, status=status.HTTP_400_BAD_REQUEST)
+
 class DatabaseTransform(APIView):
     def post(self, request, format=None):
-        def sql2pd(host, user, passwd, database_name, table_name):
-            db = mysql.connect(
-                host = host,
-                user = user,
-                passwd = passwd,
-                database = database_name)
-            df = pd.read_sql('select * from {}'.format(table_name), con=db)
-            db.close()
-            return df
- 
-        mysql_host = request.POST.get('mysql_host', 'localhost')
-        mysql_user = request.POST.get('mysql_user', ''),
-        mysql_passwd = request.POST.get('mysql_passwd', '')
-        database_name_a = request.POST.get('database_name_a', '')
-        database_name_b = request.POST.get('database_name_b', '')
-        table_name_a = request.POST.get('table_name_a', '')
-        table_name_b = request.POST.get('table_name_b', '')
-        column_name_a = request.POST.get('column_name_a', '')
-        column_name_b = request.POST.get('column_name_b', '')
-        join_type = request.POST.get('join_type', '')
-        sort_column = request.POST.get('sort_column', '')
-        sort_type = bool(request.POST.get('sort_type', False))
-        downloadable = bool(request.POST.get('downloadable', False))
-        df_a = sql2pd(
-            host = mysql_host,
-            user = mysql_user,
-            passwd = mysql_passwd,
-            database_name = database_name_a,
-            table_name = table_name_a)
-        df_b = sql2pd(
-            host = mysql_host,
-            user = mysql_user,
-            passwd = mysql_passwd,
-            database_name = database_name_b,
-            table_name = table_name_b)
-        df_r = transform_join(df_a, df_b, column_name_a, column_name_b, join_type)
-        df_r = transform_sort(df_r, sort_column, sort_type)
-        if downloadable:
-            response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename=databasetransform.csv'
-            df_r.to_csv(path_or_buf=response,index=False)
-            return response
-        else:
-            return Response({
-                'df_r': df_r.to_csv(index=False)
-            })
+        try:
+            def sql2pd(host, user, passwd, database_name, table_name):
+                db = mysql.connect(
+                    host = host,
+                    user = user,
+                    passwd = passwd,
+                    database = database_name)
+                df = pd.read_sql('select * from {}'.format(table_name), con=db)
+                db.close()
+                return df
+     
+            mysql_host = request.POST.get('mysql_host', 'localhost')
+            mysql_user = request.POST.get('mysql_user', '')
+            mysql_passwd = request.POST.get('mysql_passwd', '')
+            left_column = request.POST.get('left_column', '')
+            right_column = request.POST.get('right_column', '')
+            join_type = request.POST.get('join_type', '')
+            left_column = left_column.strip().split('.')
+            right_column = right_column.strip().split('.')
+            database_name_a = left_column[0]
+            database_name_b = right_column[0]
+            table_name_a = left_column[1]
+            table_name_b = right_column[1]
+            column_name_a = left_column[2]
+            column_name_b = right_column[2]       
+            sort_column = request.POST.get('sort_column', '')
+            sort_type = bool(request.POST.get('sort_type', False))
+            downloadable = bool(request.POST.get('downloadable', False))
+            df_a = sql2pd(
+                host = mysql_host,
+                user = mysql_user,
+                passwd = mysql_passwd,
+                database_name = database_name_a,
+                table_name = table_name_a)
+            df_b = sql2pd(
+                host = mysql_host,
+                user = mysql_user,
+                passwd = mysql_passwd,
+                database_name = database_name_b,
+                table_name = table_name_b)
+            df_r = transform_join(df_a, df_b, column_name_a, column_name_b, join_type)
+            df_r = transform_sort(df_r, sort_column, sort_type)
+            df_r = df_r.replace('\r', '', regex=True)
+            df_r = df_r.replace('\n', '', regex=True)
+            if downloadable:
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename=databasetransform.csv'
+                df_r.to_csv(path_or_buf=response,index=False)
+                return response
+            else:
+                return Response({
+                    'df_r': df_r.to_csv(index=False).strip('\n')
+                })
+        except:
+            return Response({'message': 'unknown'}, status=status.HTTP_400_BAD_REQUEST)
 
 class Csv2Head(APIView):
     def post(self, request, format=None):
@@ -118,12 +172,30 @@ class Csv2Head(APIView):
             })
         except:
             return Response({'message': 'unknown'}, status=status.HTTP_400_BAD_REQUEST)
+
+class Csv2JoinHead(APIView):
+    def post(self, request, format=None):
+        try:
+            column_name_a = request.POST.get('left_column', '')
+            column_name_b = request.POST.get('right_column', '')
+            join_type = request.POST.get('join_type', '')
+            files = request.FILES.getlist('csv_files')
+            n_files = len(files)
+            file_names = list(map(lambda f: f.file.name, files))
+            if n_files != 2:
+                return Response({'message': 'n_files != 2'}, status=status.HTTP_400_BAD_REQUEST)
+            df_a = pd.read_csv(file_names[0])
+            df_b = pd.read_csv(file_names[1])
+            df_r = transform_join(df_a, df_b, column_name_a, column_name_b, join_type)
+            return Response(list(df_r))
+        except:
+            return Response({'message': 'unknown'}, status=status.HTTP_400_BAD_REQUEST)
             
 class CsvTransform(APIView):
     def post(self, request, format=None):
         try:
-            column_name_a = request.POST.get('column_name_a', '')
-            column_name_b = request.POST.get('column_name_b', '')
+            column_name_a = request.POST.get('left_column', '')
+            column_name_b = request.POST.get('right_column', '')
             join_type = request.POST.get('join_type', '')
             sort_column = request.POST.get('sort_column', '')
             sort_type = bool(request.POST.get('sort_type', False))
@@ -137,6 +209,8 @@ class CsvTransform(APIView):
             df_b = pd.read_csv(file_names[1])
             df_r = transform_join(df_a, df_b, column_name_a, column_name_b, join_type)
             df_r = transform_sort(df_r, sort_column, sort_type)
+            df_r = df_r.replace('\r', '', regex=True)
+            df_r = df_r.replace('\n', '', regex=True)
             if downloadable:
                 response = HttpResponse(content_type='text/csv')
                 response['Content-Disposition'] = 'attachment; filename=csvtransform.csv'
@@ -144,7 +218,7 @@ class CsvTransform(APIView):
                 return response
             else:
                 return Response({
-                    'df_r': df_r.to_csv(index=False)
+                    'df_r': df_r.to_csv(index=False).strip('\n')
                 })
         except:
             return Response({'message': 'unknown'}, status=status.HTTP_400_BAD_REQUEST)
