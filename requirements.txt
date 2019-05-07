@@ -9,4 +9,4 @@ whitenoise==3.2
 djangorestframework
 django-cors-headers
 pandas
-mysql-connector-python-rf
+mysql-connector-python
